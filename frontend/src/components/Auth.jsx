@@ -1,78 +1,108 @@
-import {useEffect,useState }from"react";
-importapifrom"../api";
+import { useEffect, useState } from "react";
+import api from "../api";
 
-functionAuth({ onLogin, setCsrfToken }) {
-const [formData,setFormData]=useState({
-    username:"",
-    password:"",
+function Auth({ onLogin, setCsrfToken }) {
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
   });
-const [message,setMessage]=useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-useEffect(() => {
-constfetchToken=async () => {
-try {
-constres=awaitapi.get("/api/csrf-token");
-setCsrfToken(res.data.csrfToken);
-      }catch (error) {
-setMessage("Failed to fetch CSRF token");
+  useEffect(() => {
+    const fetchToken = async () => {
+      try {
+        const res = await api.get("/api/csrf-token");
+        setCsrfToken(res.data.csrfToken);
+      } catch (_error) {
+        setMessage("Failed to fetch CSRF token");
       }
     };
 
-fetchToken();
+    fetchToken();
   }, [setCsrfToken]);
 
-consthandleChange= (e) => {
-setFormData((prev) => ({
+  const handleChange = (e) => {
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]:e.target.value,
+      [e.target.name]: e.target.value,
     }));
   };
 
-consthandleLogin=async (e) => {
-e.preventDefault();
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage("");
 
-try {
-consttokenRes=awaitapi.get("/api/csrf-token");
-consttoken=tokenRes.data.csrfToken;
-setCsrfToken(token);
+    try {
+      const tokenRes = await api.get("/api/csrf-token");
+      const token = tokenRes.data.csrfToken;
+      setCsrfToken(token);
 
-constres=awaitapi.post("/api/login",formData, {
+      const res = await api.post("/api/login", formData, {
         headers: {
-"x-csrf-token":token,
+          "x-csrf-token": token,
         },
       });
 
-setMessage(res.data.message);
-onLogin(res.data.user);
-    }catch (error) {
-setMessage(error.response?.data?.message||"Login failed");
+      setMessage({ type: "success", text: res.data.message });
+      onLogin(res.data.user);
+    } catch (error) {
+      setMessage({ type: "error", text: error.response?.data?.message || "Login failed" });
+    } finally {
+      setLoading(false);
     }
   };
 
-return (
-<divclassName="card">
-<h2>Login</h2>
-<formonSubmit={handleLogin}className="form">
-<input
-type="text"
-name="username"
-placeholder="Username"
-value={formData.username}
-onChange={handleChange}
-/>
-<input
-type="password"
-name="password"
-placeholder="Password"
-value={formData.password}
-onChange={handleChange}
-/>
-<buttontype="submit">Login</button>
-</form>
-      {message&&<p>{message}</p>}
-<pclassName="hint">Use username: admin | password: 1234</p>
-</div>
+  return (
+    <div className="card">
+      <h2>🔐 Login</h2>
+      <form onSubmit={handleLogin} className="form">
+        <div className="form-group">
+          <label htmlFor="username">Username</label>
+          <input
+            id="username"
+            type="text"
+            name="username"
+            placeholder="Enter your username"
+            value={formData.username}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            name="password"
+            placeholder="Enter your password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <button type="submit" disabled={loading}>
+          {loading ? (
+            <>
+              <div className="spinner"></div>
+              Logging in...
+            </>
+          ) : (
+            "Login"
+          )}
+        </button>
+      </form>
+      {message && (
+        <div className={`message ${message.type}`}>
+          {message.text}
+        </div>
+      )}
+      <div className="hint">
+        💡 <strong>Demo credentials:</strong> username: admin | password: 1234
+      </div>
+    </div>
   );
 }
 
-exportdefaultAuth;
+export default Auth;
