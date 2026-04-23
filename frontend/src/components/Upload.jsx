@@ -32,7 +32,10 @@ function Upload({ csrfToken, onContactAdded }) {
       setFormData({ name: "", phone: "" });
       onContactAdded();
     } catch (error) {
-      setMessage({ type: "error", text: error.response?.data?.message || "Failed to add contact" });
+      setMessage({
+        type: "error",
+        text: error.response?.data?.message || "Failed to add contact",
+      });
     } finally {
       setLoading(false);
     }
@@ -78,9 +81,7 @@ function Upload({ csrfToken, onContactAdded }) {
         </button>
       </form>
       {message && (
-        <div className={`message ${message.type}`}>
-          {message.text}
-        </div>
+        <div className={`message ${message.type}`}>{message.text}</div>
       )}
     </div>
   );

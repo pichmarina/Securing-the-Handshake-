@@ -33,7 +33,9 @@ function App() {
     <div className="app">
       <header className="app-header">
         <h1 className="app-title">Secure Phone Book SPA</h1>
-        <p className="app-subtitle">A modern, secure contact management application</p>
+        <p className="app-subtitle">
+          A modern, secure contact management application
+        </p>
       </header>
 
       <div className="main-content">

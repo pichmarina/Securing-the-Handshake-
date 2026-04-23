@@ -48,7 +48,10 @@ function Auth({ onLogin, setCsrfToken }) {
       setMessage({ type: "success", text: res.data.message });
       onLogin(res.data.user);
     } catch (error) {
-      setMessage({ type: "error", text: error.response?.data?.message || "Login failed" });
+      setMessage({
+        type: "error",
+        text: error.response?.data?.message || "Login failed",
+      });
     } finally {
       setLoading(false);
     }
@@ -94,9 +97,7 @@ function Auth({ onLogin, setCsrfToken }) {
         </button>
       </form>
       {message && (
-        <div className={`message ${message.type}`}>
-          {message.text}
-        </div>
+        <div className={`message ${message.type}`}>{message.text}</div>
       )}
       <div className="hint">
         💡 <strong>Demo credentials:</strong> username: admin | password: 1234
